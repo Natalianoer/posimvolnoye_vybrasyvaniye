@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>Animation</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .allText {
+        position: relative;
+        width: 100%;
+        height: auto;
+
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 30px 10px;
+        text-align: center;
+      }
+
+      p {
+        margin-top: -200px;
+      }
+
+      span {
+        position: relative;
+        display: inline-block;
+
+        font-size: 30px;
+        line-height: 1;
+        font-weight: 700;
+        color: #780442;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="allText">Посимвольное выбрасывание</div>
+
+    <script>
+      const duration = 5000;
+      const distance = 400;
+      let requestId = null;
+
+      const allText = document.querySelector('.allText');
+      const textOne = allText.textContent.split(' ');
+      allText.textContent = "";
+
+      textOne.forEach((oneWord) => {
+        let pWord = document.createElement('p');
+        pWord.dataset.text = oneWord;
+        allText.append(pWord);
+
+        oneWord.split('').forEach((letter) => {
+          let spanLetter = document.createElement('span');
+          spanLetter.textContent = letter;
+          pWord.append(spanLetter);
+        });
+
+      });
+
+      const spans = allText.querySelectorAll('span');
+      const count = spans.length;
+
+      function startAmination({draw, duration}) {
+      	let startAmination = null;
+
+      	requestId = requestAnimationFrame(function measure(time) {
+      		if (!startAmination) {
+      			startAmination = time;
+      		}
+
+      		const progress = (time - startAmination) / (duration / 10);
+
+      		draw(progress);
+
+      		if (progress < 1) {
+      			requestId = requestAnimationFrame(measure);
+      		}
+      	})
+      }
+
+      function linear(timeFraction) {
+        return Math.pow(timeFraction, 10);
+      }
+
+      startAmination({
+        duration: duration,
+        draw(progress) {
+          for (let i = 1; i <= count; i++) {
+            setTimeout(function() {
+              const translate = linear(progress) * distance;
+              spans[i - 1].style.transform = `translateY(${translate}px)`;
+            }, i * (duration / count));
+          }
+        }
+      });
+
+    </script>
+  </body>
+</html>
